@@ -10,7 +10,8 @@
 
 NSString *docPath(void);
 
-@interface RRAppDelegate : UIResponder <UIApplicationDelegate>
+@interface RRAppDelegate : UIResponder
+<UIApplicationDelegate, UITableViewDataSource>
 
 {
     UITableView *taskTable;

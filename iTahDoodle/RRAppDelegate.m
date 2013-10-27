@@ -18,6 +18,30 @@ NSString *docPath()
 
 @implementation RRAppDelegate
 
+#pragma Table view management
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return [tasks count];
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    UITableViewCell *c = [taskTable dequeueReusableCellWithIdentifier:@"Cell"];
+    
+    if (!c) {
+        c = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"Cell"];
+    }
+    
+    NSString *item = [tasks objectAtIndex:[indexPath row]];
+    [[c textLabel] setText:item];
+    
+    return c;
+}
+
+
+#pragma Application delegate callbacks
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     NSArray *plist = [NSArray arrayWithContentsOfFile:docPath()];
@@ -29,6 +53,13 @@ NSString *docPath()
         tasks = [[NSMutableArray alloc] init];
     }
     
+    if ([tasks count] == 0) {
+        [tasks addObject:@"Walk the dogs"];
+        [tasks addObject:@"Walk the dogs 2"];
+        [tasks addObject:@"Walk the dogs 3"];
+        
+    }
+        
     CGRect tableFrame = CGRectMake(0, 80, 320, 380);
     CGRect fieldFrame = CGRectMake(20, 40, 200, 31);
     CGRect buttonFrame = CGRectMake(228, 40, 72, 31);
@@ -37,6 +68,8 @@ NSString *docPath()
                                              style:UITableViewStylePlain];
     
     [taskTable setSeparatorStyle:UITableViewCellSeparatorStyleNone];
+    
+    [taskTable setDataSource:self];
     
     taskField = [[UITextField alloc] initWithFrame:fieldFrame];
     
@@ -66,6 +99,21 @@ NSString *docPath()
     return YES;
 }
 
+- (void)addTask:(id)sender
+{
+    NSString *t = [taskField text];
+    
+    if ([t isEqualToString:@""]) {
+        return;
+    }
+    
+    [tasks addObject:t];
+    [taskTable reloadData];
+    [taskField setText:@""];
+    [taskField resignFirstResponder];
+    
+}
+
 - (void)applicationWillResignActive:(UIApplication *)application
 {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
@@ -74,8 +122,7 @@ NSString *docPath()
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
-    // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later. 
-    // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+    [tasks writeToFile:docPath() atomically:YES];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
@@ -90,7 +137,7 @@ NSString *docPath()
 
 - (void)applicationWillTerminate:(UIApplication *)application
 {
-    // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    [tasks writeToFile:docPath() atomically:YES];
 }
 
 @end
