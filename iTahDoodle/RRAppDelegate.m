@@ -8,14 +8,61 @@
 
 #import "RRAppDelegate.h"
 
+NSString *docPath()
+{
+    NSArray *pathList = NSSearchPathForDirectoriesInDomains(NSDocumentationDirectory,
+                                                            NSUserDomainMask, YES);
+    return [[pathList objectAtIndex:0] stringByAppendingPathComponent:@"data.td"];
+    
+}
+
 @implementation RRAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    NSArray *plist = [NSArray arrayWithContentsOfFile:docPath()];
+    
+    if (plist) {
+        tasks = [plist mutableCopy];
+        
+    }else {
+        tasks = [[NSMutableArray alloc] init];
+    }
+    
+    CGRect tableFrame = CGRectMake(0, 80, 320, 380);
+    CGRect fieldFrame = CGRectMake(20, 40, 200, 31);
+    CGRect buttonFrame = CGRectMake(228, 40, 72, 31);
+    
+    taskTable = [[UITableView alloc] initWithFrame:tableFrame
+                                             style:UITableViewStylePlain];
+    
+    [taskTable setSeparatorStyle:UITableViewCellSeparatorStyleNone];
+    
+    taskField = [[UITextField alloc] initWithFrame:fieldFrame];
+    
+    [taskField setBorderStyle:UITextBorderStyleRoundedRect];
+    [taskField setPlaceholder:@"Type a task, tap insert"];
+    
+    insertButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    [insertButton setFrame:buttonFrame];
+    
+    
+    [insertButton addTarget:self
+                     action:@selector(addTask:)
+           forControlEvents:UIControlEventTouchUpInside];
+    
+    [insertButton setTitle:@"Insert" forState:UIControlStateNormal];
+  
+    // This line things make working with iOS7
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    // Override point for customization after application launch.
-    self.window.backgroundColor = [UIColor whiteColor];
-    [self.window makeKeyAndVisible];
+    
+    [[self window] addSubview:taskTable];
+    [[self window] addSubview:taskField];
+    [[self window] addSubview:insertButton];
+    
+    [[self window] setBackgroundColor:[UIColor whiteColor]];
+    [[self window] makeKeyAndVisible];
+    
     return YES;
 }
 
